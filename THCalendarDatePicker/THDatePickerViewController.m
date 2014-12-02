@@ -29,6 +29,8 @@
 @property (nonatomic, strong) NSDate * firstOfCurrentMonth;
 @property (nonatomic, strong) THDateDay * currentDay;
 @property (nonatomic, strong) NSDate * internalDate;
+@property (nonatomic, strong) NSDate * today;
+
 @property (weak, nonatomic) IBOutlet UILabel *monthLabel;
 @property (weak, nonatomic) IBOutlet UIButton *nextBtn;
 @property (weak, nonatomic) IBOutlet UIButton *prevBtn;
@@ -261,6 +263,7 @@
     _date = date;
     _dateNoTime = !date ? nil : [self dateWithOutTime:date];
     self.internalDate = [_dateNoTime dateByAddingTimeInterval:0];
+    self.today = [self dateWithOutTime:[NSDate date]];
 }
 
 - (NSDate *)date {
@@ -281,7 +284,7 @@
 - (BOOL)shouldOkBeEnabled {
     if (_autoCloseOnSelectDate)
         return YES;
-    float diff = [self.internalDate timeIntervalSinceDate:_dateNoTime];
+    float diff = fabs([self.internalDate timeIntervalSinceDate:self.today]);
     return (self.internalDate && _dateNoTime && diff >= 0)
     || (self.internalDate && !_dateNoTime)
     || (!self.internalDate && _dateNoTime);
@@ -464,7 +467,7 @@
 #pragma mark - Date Utils
 
 - (BOOL)dateInFutureAndShouldBeDisabled:(NSDate *)dateToCompare {
-    NSDate *currentDate = [self internalDate];
+    NSDate *currentDate = [self today];
     NSCalendar *calendar = [NSCalendar currentCalendar];
     NSInteger comps = (NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear);
     currentDate = [calendar dateFromComponents:[calendar components:comps fromDate:currentDate]];
